@@ -1,7 +1,8 @@
 #include <FastX9CXXX.h>  //DO OBSŁUGI POTENCJOMETRU  ELEKTRONICZNEGO
+#include "display.h"
 
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
+// #include <Wire.h>
+// #include <LiquidCrystal_I2C.h>
 unsigned short batTestVolt_1 = 0, batTestVolt_2 = 0, batTestVolt_3 = 0, batTestVolt_4 = 0, batTestVolt_5 = 0,
                batTestVolt_6 = 0;  // zmienne do przechowywania warosci napiec podlaczoego aku zakres od 0 do 1024
 unsigned short batSetCurr_1 = 0, batSetCurr_2 = 0, batSetCurr_3 = 0, batSetCurr_4 = 0, batSetCurr_5 = 0,
@@ -26,8 +27,7 @@ bool niMh = 1, LiPo = 0;  // zmienne przechowujące wybrany przez użytkonika to
 unsigned short R1 = 0;  // rezystancja do resystora do pomiaru temeperatury w obudowie (devTemp) Zdefiniować po
                         // dobraniu!
 
-LiquidCrystal_I2C lcd(0x27, 20,
-                      4);  //że podłączony jest wyswietlacz LCD o adresie 0x27 o wymiarach 20 znaków w 4 liniach
+
 
 // MENU
 
@@ -177,12 +177,12 @@ void setup() {
 
     Serial.begin(115200);  // Uruchomienie komunikacji
     Serial.println("Turn ON Charging Station...");
-    lcd.begin(20, 4);       // zaczynami z menu inicjalizajca wyswietlacza
-    lcd.setBacklight(255);  // ustawiamy podswietlenie na max
-    lcd.home();
-    lcd.clear();
 
-    // ponmode dla klawiatury włączanie rezystora podciagającego
+    displayInit();
+
+
+
+    // pin mode dla klawiatury włączanie rezystora podciagającego
     pinMode(btnBack, INPUT_PULLUP);
     pinMode(btnNext, INPUT_PULLUP);
     pinMode(btnPrev, INPUT_PULLUP);
@@ -491,16 +491,18 @@ void batTest() {
 
 void loop() {
     // odczytujemy napięcia na akumulatorze podłączonym do złącza - i przepisujemy je do zmiennej batTestVolt_X
-    batTestVolt_1 =
-        analogRead(testVolt_1) * 0.0083 * 2;  // mnożymy odczyt analogowy przez 0.0083 - żeby zamienić na Volty a potem
-                                              // jeszcze razy 2 bo pomiar realizowany jest przez dzielnik dopasowujący
-                                              // zakres napięcia mierzonego (  max 8,5V) do zakresu Arduino - czyli 5V
-    batTestVolt_2 = analogRead(testVolt_2) * 0.0083 * 2;
-    batTestVolt_3 = analogRead(testVolt_3) * 0.0083 * 2;
-    batTestVolt_4 = analogRead(testVolt_4) * 0.0083 * 2;
-    batTestVolt_5 = analogRead(testVolt_5) * 0.0083 * 2;
-    batTestVolt_6 = analogRead(testVolt_6) * 0.0083 * 2;
+    // batTestVolt_1 =
+    //     analogRead(testVolt_1) * 0.0083 * 2;  // mnożymy odczyt analogowy przez 0.0083 - żeby zamienić na Volty a potem
+    //                                           // jeszcze razy 2 bo pomiar realizowany jest przez dzielnik dopasowujący
+    //                                           // zakres napięcia mierzonego (  max 8,5V) do zakresu Arduino - czyli 5V
+    // batTestVolt_2 = analogRead(testVolt_2) * 0.0083 * 2;
+    // batTestVolt_3 = analogRead(testVolt_3) * 0.0083 * 2;
+    // batTestVolt_4 = analogRead(testVolt_4) * 0.0083 * 2;
+    // batTestVolt_5 = analogRead(testVolt_5) * 0.0083 * 2;
+    // batTestVolt_6 = analogRead(testVolt_6) * 0.0083 * 2;
 
-    // menu();
-    batTest();
+    // // menu();
+    // batTest();
+
+    displayMenuHandler();
 }
