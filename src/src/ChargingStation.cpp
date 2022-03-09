@@ -1,5 +1,7 @@
 #include <FastX9CXXX.h>  //DO OBSŁUGI POTENCJOMETRU  ELEKTRONICZNEGO
 #include "display.h"
+#include "timer.h"
+#include "buttons.h"
 
 // #include <Wire.h>
 // #include <LiquidCrystal_I2C.h>
@@ -26,8 +28,6 @@ bool niMh = 1, LiPo = 0;  // zmienne przechowujące wybrany przez użytkonika to
 // zdefniwac przy motnazu!
 unsigned short R1 = 0;  // rezystancja do resystora do pomiaru temeperatury w obudowie (devTemp) Zdefiniować po
                         // dobraniu!
-
-
 
 // MENU
 
@@ -156,12 +156,6 @@ int workingLED_5_GREEN = 44;
 int AlarmLED_6_RED = 43;
 int workingLED_6_GREEN = 42;
 
-// definicja przycisków klawiatury
-int btnBack = 2;
-int btnNext = 3;
-int btnPrev = 4;
-int btnSet = 5;
-
 // Piny przerwań
 // int Inter_1 =21
 // int Inter_2 =20
@@ -169,6 +163,10 @@ int btnSet = 5;
 // int Inter_4 =18
 
 // Zmienne pamiętające nastawy prądów/napięć/ itp
+
+void timerProcess(void) {
+    buttonsReadPinsAndFilter();
+}
 
 void setup() {
     // Przerwania wylaczone na chwile bo nie wiem czy dobrze
@@ -178,15 +176,10 @@ void setup() {
     Serial.begin(115200);  // Uruchomienie komunikacji
     Serial.println("Turn ON Charging Station...");
 
+    buttonsInit();
     displayInit();
+    initTimer1(timerProcess);
 
-
-
-    // pin mode dla klawiatury włączanie rezystora podciagającego
-    pinMode(btnBack, INPUT_PULLUP);
-    pinMode(btnNext, INPUT_PULLUP);
-    pinMode(btnPrev, INPUT_PULLUP);
-    pinMode(btnSet, INPUT_PULLUP);
     // definicja pozycji w menu jako tablica
     //  menu[0] = {"Tor Ladowania", 1, 2, 3, 4, 5, 6, NULL};
     //   menu[1] = {"Typ Aku", LiPo, NiMh, typAku};
@@ -490,11 +483,31 @@ void batTest() {
 }
 
 void loop() {
+    readButtons();
+
+    if (buttons.back) {
+        Serial.println("1-1");
+        displayData.menuIndex = MAIN_SCREEN;
+    }
+    if (buttons.next) {
+        Serial.println("2-1");
+        displayData.menuIndex = CHANNEL_SETTINGS_SCREEN;
+    }
+    if (buttons.prev) {
+        Serial.println("3-1");
+    }
+    if (buttons.set) {
+        Serial.println("4-1");
+    }
+
     // odczytujemy napięcia na akumulatorze podłączonym do złącza - i przepisujemy je do zmiennej batTestVolt_X
     // batTestVolt_1 =
-    //     analogRead(testVolt_1) * 0.0083 * 2;  // mnożymy odczyt analogowy przez 0.0083 - żeby zamienić na Volty a potem
-    //                                           // jeszcze razy 2 bo pomiar realizowany jest przez dzielnik dopasowujący
-    //                                           // zakres napięcia mierzonego (  max 8,5V) do zakresu Arduino - czyli 5V
+    //     analogRead(testVolt_1) * 0.0083 * 2;  // mnożymy odczyt analogowy przez 0.0083 - żeby zamienić na Volty a
+    //     potem
+    //                                           // jeszcze razy 2 bo pomiar realizowany jest przez dzielnik
+    //                                           dopasowujący
+    //                                           // zakres napięcia mierzonego (  max 8,5V) do zakresu Arduino - czyli
+    //                                           5V
     // batTestVolt_2 = analogRead(testVolt_2) * 0.0083 * 2;
     // batTestVolt_3 = analogRead(testVolt_3) * 0.0083 * 2;
     // batTestVolt_4 = analogRead(testVolt_4) * 0.0083 * 2;
