@@ -2,6 +2,7 @@
 #include "display.h"
 #include "timer.h"
 #include "buttons.h"
+#include "menuControl.h"
 
 // #include <Wire.h>
 // #include <LiquidCrystal_I2C.h>
@@ -166,6 +167,7 @@ int workingLED_6_GREEN = 42;
 
 void timerProcess(void) {
     buttonsReadPinsAndFilter();
+    displayMenuTimeouts();
 }
 
 void setup() {
@@ -484,21 +486,11 @@ void batTest() {
 
 void loop() {
     readButtons();
+    menuControlHandler();
+    // processControlHandler();
+    displayMenuHandler();
 
-    if (buttons.back) {
-        Serial.println("1-1");
-        displayData.menuIndex = MAIN_SCREEN;
-    }
-    if (buttons.next) {
-        Serial.println("2-1");
-        displayData.menuIndex = CHANNEL_SETTINGS_SCREEN;
-    }
-    if (buttons.prev) {
-        Serial.println("3-1");
-    }
-    if (buttons.set) {
-        Serial.println("4-1");
-    }
+    //     Serial.println((String) "editedChannelSetting " + (displayData.editedChannelSetting));
 
     // odczytujemy napięcia na akumulatorze podłączonym do złącza - i przepisujemy je do zmiennej batTestVolt_X
     // batTestVolt_1 =
@@ -516,6 +508,39 @@ void loop() {
 
     // // menu();
     // batTest();
-
-    displayMenuHandler();
 }
+
+// if (buttons.prev) {
+//     // if (controlData.channelChargingCurrent[displayData.editedChannel] > 0)
+//     //     controlData.channelChargingCurrent[displayData.editedChannel]--;
+//     // if (controlData.channelChargingMode[displayData.editedChannel] > 0)
+//     //     controlData.channelChargingMode[displayData.editedChannel]--;
+//     // if (controlData.channelChargingState[displayData.editedChannel] > 0)
+//     // controlData.channelChargingState[displayData.editedChannel]--;
+//     // if (controlData.cellCurrent[displayData.editedChannel] >= 0.5) {
+//     //     controlData.cellCurrent[displayData.editedChannel] -= 0.5;
+//     //     displayData.updateCellsReadouts = true;
+//     // }
+//     // if (controlData.cellVoltage[displayData.editedChannel] >= 0.5) {
+//     //     controlData.cellVoltage[displayData.editedChannel] -= 0.5;
+//     //     displayData.updateCellsReadouts = true;
+//     // }
+// }
+// if (buttons.set) {
+//     displayData.menuIndex = CHANNEL_SETTINGS_SCREEN;
+//     displayData.editedChannelSetting = MODE_CHANNEL_SETTING;
+//     // if (controlData.channelChargingCurrent[displayData.editedChannel] < A_2_0_CHARGING_CURRENT)
+//     //     controlData.channelChargingCurrent[displayData.editedChannel]++;
+//     // if (controlData.channelChargingMode[displayData.editedChannel] < NIMH_MODE)
+//     //     controlData.channelChargingMode[displayData.editedChannel]++;
+//     // if (controlData.channelChargingState[displayData.editedChannel] < FINISHED_CHARGING_STATE)
+//     //     controlData.channelChargingState[displayData.editedChannel]++;
+//     // if (controlData.cellCurrent[displayData.editedChannel] < 15) {
+//     //     controlData.cellCurrent[displayData.editedChannel] += 0.5;
+//     //     displayData.updateCellsReadouts = true;
+//     // }
+//     // if (controlData.cellVoltage[displayData.editedChannel] < 15) {
+//     //     controlData.cellVoltage[displayData.editedChannel] += 0.5;
+//     //     displayData.updateCellsReadouts = true;
+//     // }
+// }

@@ -1,19 +1,19 @@
 #include <display.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include "processControl.h"
 
-CONTROL_DATA controlData;
 DISPLAY_DATA displayData = {.menuIndex = MENU_INDEX(POWER_ON_SCREEN)};
 
 MENU_INDEX lastMenuIndex = UNINITIALISED_SCREEN;
-CHARGER_MODE lastChargerMode = CHARGE_MODE;
 uint8_t lastEditedChannel = 0;
-uint8_t lastActiveChannels = 0;
-CHANNEL_SETTING lastEditedChannelSetting = MODE_CHANNEL_SETTING;
-CHANNEL_CHARGING_MODE lastChannelChargingMode;
-CHANNEL_CHARGING_CURRENT lastChannelChargingCurrent;
-CHANNEL_CHARGING_STATE lastChannelChargingState[CHANNELS_QUANTITY];
+uint8_t lastEditedChannelSetting = MODE_CHANNEL_SETTING;
+uint8_t lastChannelChargingMode;
+uint8_t lastChannelChargingCurrent;
+uint8_t lastChannelChargingState[CHANNELS_QUANTITY];
 bool lastStartChargingChoice;
+
+uint16_t startChargingScreenTimeout = START_CHARGING_SCREEN_TIMEOUT;
 
 LiquidCrystal_I2C lcd(0x27, 20,
                       4);  //że podłączony jest wyswietlacz LCD o adresie 0x27 o wymiarach 20 znaków w 4 liniach
@@ -23,6 +23,12 @@ void displayInit(void) {
     lcd.init();        // initialize the lcd
     lcd.backlight();
     lcd.clear();
+    displayData.welcomeScreenTimeout = WELCOME_SCREEN_TIMEOUT;
+}
+
+void displayMenuTimeouts(void) {
+    if (displayData.welcomeScreenTimeout) displayData.welcomeScreenTimeout--;
+    if (displayData.startChargingScreenTimeout > 0) displayData.startChargingScreenTimeout--;
 }
 
 bool displayCheckChannelsChanges(void) {
@@ -48,7 +54,9 @@ void displayPrintActiveChannels(void) {
             case ALERT_CHARGING_STATE:
                 lcd.print("A");
                 break;
-
+            case FINISHED_CHARGING_STATE:
+                lcd.print("^");
+                break;
             default:
                 break;
         }
@@ -157,13 +165,13 @@ void displayMenuHandler(void) {
                 displayPrintFloatValue(controlData.cellVoltage[displayData.editedChannel]);
                 lcd.print("V ");
                 displayPrintFloatValue(controlData.cellCurrent[displayData.editedChannel]);
-                lcd.print("A ");
+                lcd.print("A    ");
                 lcd.setCursor(0, 3);
                 lcd.print("Set: ");
                 displayPrintChargingMode();
                 lcd.print(" ");
                 displayPrintChargingCurrent();
-                lcd.print("A     ");
+                lcd.print("      ");
                 displayCheckChannelsChanges();
                 lastChannelChargingCurrent = controlData.channelChargingCurrent[displayData.editedChannel];
                 lastChannelChargingMode = controlData.channelChargingMode[displayData.editedChannel];
@@ -172,9 +180,7 @@ void displayMenuHandler(void) {
             }
             if (displayData.editedChannel != lastEditedChannel) {
                 lastEditedChannel = displayData.editedChannel;
-                lcd.setCursor(5, 1);
-                displayPrintEditedChannelIndicator();
-                lcd.setCursor(5, 3);
+                lcd.setCursor(10, 0);
                 displayPrintEditedChannelIndicator();
             }
             if (displayCheckChannelsChanges()) {
@@ -185,7 +191,7 @@ void displayMenuHandler(void) {
                 displayData.updateCellsReadouts = false;
                 lcd.setCursor(5, 2);
                 displayPrintFloatValue(controlData.cellVoltage[displayData.editedChannel]);
-                lcd.setCursor(12, 2);
+                lcd.setCursor(11, 2);
                 displayPrintFloatValue(controlData.cellCurrent[displayData.editedChannel]);
             }
             if (controlData.channelChargingMode[displayData.editedChannel] != lastChannelChargingMode) {
@@ -195,7 +201,7 @@ void displayMenuHandler(void) {
             }
             if (controlData.channelChargingCurrent[displayData.editedChannel] != lastChannelChargingCurrent) {
                 lastChannelChargingCurrent = controlData.channelChargingCurrent[displayData.editedChannel];
-                lcd.setCursor(11, 2);
+                lcd.setCursor(10, 3);
                 displayPrintChargingCurrent();
             }
             break;
@@ -213,12 +219,12 @@ void displayMenuHandler(void) {
                 displayUpdateSelectionIndicator(displayData.editedChannelSetting == CHARGING_CURRENT_CHANNEL_SETTING);
                 lcd.print("Current: ");
                 displayPrintChargingCurrent();
-                lcd.print("       ");
+                lcd.print("      ");
                 lcd.setCursor(0, 3);
                 displayUpdateSelectionIndicator(displayData.editedChannelSetting == CHARGING_STATE_CHANNEL_SETTING);
                 lcd.print("Charging: ");
                 displayPrintChargingState();
-                lcd.print("     ");
+                lcd.print("    ");
                 lastChannelChargingMode = controlData.channelChargingMode[displayData.editedChannel];
                 lastChannelChargingCurrent = controlData.channelChargingCurrent[displayData.editedChannel];
                 lastChannelChargingState[displayData.editedChannel] =
@@ -235,36 +241,36 @@ void displayMenuHandler(void) {
             }
             if (controlData.channelChargingMode[displayData.editedChannel] != lastChannelChargingMode) {
                 lastChannelChargingMode = controlData.channelChargingMode[displayData.editedChannel];
-                lcd.setCursor(8, 1);
+                lcd.setCursor(7, 1);
                 displayPrintChargingMode();
             }
             if (controlData.channelChargingCurrent[displayData.editedChannel] != lastChannelChargingCurrent) {
                 lastChannelChargingCurrent = controlData.channelChargingCurrent[displayData.editedChannel];
-                lcd.setCursor(11, 2);
+                lcd.setCursor(10, 2);
                 displayPrintChargingCurrent();
             }
             if (controlData.channelChargingState[displayData.editedChannel] !=
                 lastChannelChargingState[displayData.editedChannel]) {
                 lastChannelChargingState[displayData.editedChannel] =
                     controlData.channelChargingState[displayData.editedChannel];
-                lcd.setCursor(12, 2);
+                lcd.setCursor(11, 3);
                 displayPrintChargingState();
             }
             break;
 
         case CHARGING_CONFIRMATION_SCREEN:
             if (menuChange) {
+                Serial.println((String) "displayData.startChargingChoice " + (displayData.startChargingChoice));
                 lcd.setCursor(0, 0);
                 lcd.print(String("Start Ch.") + displayData.editedChannel + String(" charging?"));
                 lcd.setCursor(0, 1);
                 displayUpdateSelectionIndicator(displayData.startChargingChoice == false);
-                lcd.print("No                  ");
+                lcd.print("No                 ");
                 lcd.setCursor(0, 2);
                 displayUpdateSelectionIndicator(displayData.startChargingChoice == true);
-                lcd.print("Yes                 ");
+                lcd.print("Yes                ");
                 lcd.setCursor(0, 3);
                 lcd.print("WARN! CONNECT BATT! ");
-                displayData.startChargingChoice = false;
                 lastChannelChargingMode = controlData.channelChargingMode[displayData.editedChannel];
                 lastChannelChargingCurrent = controlData.channelChargingCurrent[displayData.editedChannel];
                 lastChannelChargingState[displayData.editedChannel] =
@@ -272,9 +278,9 @@ void displayMenuHandler(void) {
             }
             if (displayData.startChargingChoice != lastStartChargingChoice) {
                 lastStartChargingChoice = displayData.startChargingChoice;
-                lcd.setCursor(1, 1);
+                lcd.setCursor(0, 1);
                 displayUpdateSelectionIndicator(displayData.startChargingChoice == false);
-                lcd.setCursor(1, 2);
+                lcd.setCursor(0, 2);
                 displayUpdateSelectionIndicator(displayData.startChargingChoice == true);
             }
             break;
