@@ -3,6 +3,7 @@
 #include "timer.h"
 #include "buttons.h"
 #include "menuControl.h"
+#include "analogInputs.h"
 
 // #include <Wire.h>
 // #include <LiquidCrystal_I2C.h>
@@ -181,11 +182,6 @@ void setup() {
     buttonsInit();
     displayInit();
     initTimer1(timerProcess);
-
-    // definicja pozycji w menu jako tablica
-    //  menu[0] = {"Tor Ladowania", 1, 2, 3, 4, 5, 6, NULL};
-    //   menu[1] = {"Typ Aku", LiPo, NiMh, typAku};
-    //  menu[2] = {"Prad Ladowania", 0.5, 1, 2, pradLadowania};
 }
 // funkcja realizowana w przerwaniu (po wcisnieciu przycisku menu na klawiatrurze - podlaczonego do pinu 22
 
@@ -486,6 +482,7 @@ void batTest() {
 
 void loop() {
     readButtons();
+    analogInputsRead();
     menuControlHandler();
     // processControlHandler();
     displayMenuHandler();

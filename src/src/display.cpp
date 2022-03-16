@@ -46,7 +46,7 @@ void displayPrintActiveChannels(void) {
     for (uint8_t i = 0; i < CHANNELS_QUANTITY; i++) {
         switch (controlData.channelChargingState[i]) {
             case OFF_CHARGING_STATE:
-                lcd.print("0");
+                lcd.print("^");
                 break;
             case ON_CHARGING_STATE:
                 lcd.print("1");
