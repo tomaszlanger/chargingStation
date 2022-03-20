@@ -4,6 +4,8 @@
 #include "buttons.h"
 #include "menuControl.h"
 #include "analogInputs.h"
+#include "processControl.h"
+#include "outputs.h"
 
 // #include <Wire.h>
 // #include <LiquidCrystal_I2C.h>
@@ -169,6 +171,7 @@ int workingLED_6_GREEN = 42;
 void timerProcess(void) {
     buttonsReadPinsAndFilter();
     displayMenuTimeouts();
+    processTimersHandler();
 }
 
 void setup() {
@@ -179,6 +182,7 @@ void setup() {
     Serial.begin(115200);  // Uruchomienie komunikacji
     Serial.println("Turn ON Charging Station...");
 
+    outputsInit();
     buttonsInit();
     displayInit();
     initTimer1(timerProcess);
@@ -484,7 +488,7 @@ void loop() {
     readButtons();
     analogInputsRead();
     menuControlHandler();
-    // processControlHandler();
+    processControlHandler();
     displayMenuHandler();
 
     //     Serial.println((String) "editedChannelSetting " + (displayData.editedChannelSetting));

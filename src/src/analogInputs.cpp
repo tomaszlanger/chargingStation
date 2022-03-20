@@ -1,9 +1,9 @@
-#include <analogInputs.h>
+#include "analogInputs.h"
 #include "processControl.h"
 
 void analogInputsRead(void) {
-    for (int i = 0; i < CHANNELS_QUANTITY; i++) {
-        controlData.cellVoltage[i] = 0.0049 * analogRead(CELL_1_VOLTAGE_INPUT + 1);
-        controlData.cellCurrent[i] = 0.0049 * analogRead(CELL_1_CURRENT_INPUT + 1);
+    for (uint8_t i = 0; i < CHANNELS_QUANTITY; i++) {
+        controlData.cellVoltage[i] = ACD_INPUTS_TO_VOLTS(analogRead(CELL_1_VOLTAGE_INPUT + i));
+        controlData.cellCurrent[i] = ACD_INPUTS_TO_AMPERS(analogRead(CELL_1_CURRENT_INPUT + i));
     }
 }

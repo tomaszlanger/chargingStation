@@ -5,18 +5,16 @@
 
 DISPLAY_DATA displayData = {.menuIndex = MENU_INDEX(POWER_ON_SCREEN)};
 
-MENU_INDEX lastMenuIndex = UNINITIALISED_SCREEN;
-uint8_t lastEditedChannel = 0;
-uint8_t lastEditedChannelSetting = MODE_CHANNEL_SETTING;
-uint8_t lastChannelChargingMode;
-uint8_t lastChannelChargingCurrent;
-uint8_t lastChannelChargingState[CHANNELS_QUANTITY];
-bool lastStartChargingChoice;
+static MENU_INDEX lastMenuIndex = UNINITIALISED_SCREEN;
+static uint8_t lastEditedChannel = 0;
+static uint8_t lastEditedChannelSetting = MODE_CHANNEL_SETTING;
+static uint8_t lastChannelChargingMode;
+static uint8_t lastChannelChargingCurrent;
+static uint8_t lastChannelChargingState[CHANNELS_QUANTITY];
+static bool lastStartChargingChoice;
 
-uint16_t startChargingScreenTimeout = START_CHARGING_SCREEN_TIMEOUT;
-
-LiquidCrystal_I2C lcd(0x27, 20,
-                      4);  //że podłączony jest wyswietlacz LCD o adresie 0x27 o wymiarach 20 znaków w 4 liniach
+static LiquidCrystal_I2C lcd(0x27, 20,
+                             4);  //że podłączony jest wyswietlacz LCD o adresie 0x27 o wymiarach 20 znaków w 4 liniach
 
 void displayInit(void) {
     lcd.begin(20, 4);  // zaczynami z menu inicjalizajca wyswietlacza
@@ -31,7 +29,7 @@ void displayMenuTimeouts(void) {
     if (displayData.startChargingScreenTimeout > 0) displayData.startChargingScreenTimeout--;
 }
 
-bool displayCheckChannelsChanges(void) {
+static bool displayCheckChannelsChanges(void) {
     bool statesChanged = false;
     for (uint8_t i = 0; i < CHANNELS_QUANTITY; i++) {
         if (controlData.channelChargingState[i] != lastChannelChargingState[i]) {
@@ -42,7 +40,7 @@ bool displayCheckChannelsChanges(void) {
     return statesChanged;
 }
 
-void displayPrintActiveChannels(void) {
+static void displayPrintActiveChannels(void) {
     for (uint8_t i = 0; i < CHANNELS_QUANTITY; i++) {
         switch (controlData.channelChargingState[i]) {
             case OFF_CHARGING_STATE:
@@ -63,7 +61,7 @@ void displayPrintActiveChannels(void) {
     }
 }
 
-void displayPrintEditedChannelIndicator(void) {
+static void displayPrintEditedChannelIndicator(void) {
     for (uint8_t i = 0; i < CHANNELS_QUANTITY; i++) {
         if (i == displayData.editedChannel) {
             lcd.print("*");
@@ -73,7 +71,7 @@ void displayPrintEditedChannelIndicator(void) {
     }
 }
 
-void displayUpdateSelectionIndicator(bool show) {
+static void displayUpdateSelectionIndicator(bool show) {
     if (show) {
         lcd.print(">");
     } else {
@@ -81,7 +79,7 @@ void displayUpdateSelectionIndicator(bool show) {
     }
 }
 
-void displayPrintChargingMode(void) {
+static void displayPrintChargingMode(void) {
     if (controlData.channelChargingMode[displayData.editedChannel] == LIPO_MODE) {
         lcd.print("LiPo");
     } else {
@@ -89,7 +87,7 @@ void displayPrintChargingMode(void) {
     }
 }
 
-void displayPrintChargingState(void) {
+static void displayPrintChargingState(void) {
     switch (controlData.channelChargingState[displayData.editedChannel]) {
         case OFF_CHARGING_STATE:
             lcd.print("OFF  ");
@@ -106,7 +104,7 @@ void displayPrintChargingState(void) {
     }
 }
 
-void displayPrintChargingCurrent(void) {
+static void displayPrintChargingCurrent(void) {
     switch (controlData.channelChargingCurrent[displayData.editedChannel]) {
         case A_0_5_CHARGING_CURRENT:
             lcd.print("0.5A");
@@ -125,7 +123,7 @@ void displayPrintChargingCurrent(void) {
     }
 }
 
-void displayPrintFloatValue(float value) {
+static void displayPrintFloatValue(float value) {
     if (value < 10) {
         lcd.print(" ");
     }

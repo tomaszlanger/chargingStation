@@ -6,8 +6,8 @@
 #define btnSetPin 2
 
 BUTTONS buttons;
-uint8_t rawButtonsState, lastRawButtonsState, steadyButtons;
-uint8_t filteredButtonsState, lastfilteredButtonsState, risingButtonsState;
+static uint8_t rawButtonsState, lastRawButtonsState, steadyButtons;
+static uint8_t filteredButtonsState, lastfilteredButtonsState, risingButtonsState;
 
 void buttonsInit(void) {
     pinMode(btnBackPin, INPUT_PULLUP);

@@ -30,4 +30,7 @@ typedef struct {
 
 extern CONTROL_DATA controlData;
 
+void processControlHandler(void);
+void processTimersHandler(void);
+
 #endif  // PROCESS_CONTROL_H
