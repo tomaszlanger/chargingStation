@@ -11,17 +11,6 @@
 #define ON_OUTPUT_DELAY 200u
 #define ON_OUTPUT_READOUTS_DELAY 200u
 
-// Vref = 2.5V
-// RUser = 5[kohm] - przykładowa rezystancja (dowolnie nastawiaony ograncznik pradu)
-// RvarTotal = 10 [kochm] - rezystancja całkowita potencjometru regulujacego ograncznik pradu
-// RcurrentSense = 0.05 [ohm] - rezystancja mierzaca prad ladowania (fizyzcnie taki jest rezystor mierzacy prad)
-// Napiecie 2.5V * (Ruser/(71,5 + RvarTotal)/ RcurrentSense
-
-// 3.26 kochm = 2,04A limiter
-// 2,45 kochm = 1.51A limiter
-// 1,63 kochm = 1,001A limiter
-// 0,82 kochm = 0.501A limiter
-
 typedef enum {
     OFF_OUTPUT_STATE = 0,
     WAIT_FOR_ON_OUTPUT_STATE = 1,
@@ -47,6 +36,7 @@ void processHandleOutputs(uint8_t channel, OUTPUT_REQUEST outputOnRequest) {
     bool outputEnabled = false;
     if (outputOnRequest == OFF_OUTPUT_REQUEST) {
         channelReadoutsReady[channel] = false;
+        outputSetCurrentChannel(channel, (CHANNEL_CHARGING_CURRENT)controlData.channelChargingCurrent[channel]);
         outputState[channel] = OFF_OUTPUT_STATE;
     }
     switch (outputState[channel]) {
@@ -85,6 +75,7 @@ void processHandleOutputs(uint8_t channel, OUTPUT_REQUEST outputOnRequest) {
         default:
             break;
     }
+    outputSetChannelAlertLed(channel, (CHANNEL_CHARGING_STATE)controlData.channelChargingState[channel]);
 }
 
 void processControlHandler(void) {

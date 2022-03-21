@@ -40,7 +40,7 @@ class FastX9CXXX {
     }
 
    private:
-    uint8_t PinCS = UINT8_MAX;
+    // uint8_t PinCS = UINT8_MAX;
     uint8_t PinUD = UINT8_MAX;
     uint8_t PinINC = UINT8_MAX;
 
@@ -55,23 +55,26 @@ class FastX9CXXX {
     FastX9CXXX() {}
 
     FastX9CXXX(const uint8_t csPin, const uint8_t udPin, const uint8_t incPin) {
-        Setup(csPin, udPin, incPin);
+        // Setup(csPin, udPin, incPin);
+        Setup(udPin, incPin);
     }
 
-    const bool Setup(const uint8_t csPin, const uint8_t udPin, const uint8_t incPin) {
-        PinCS = csPin;
+    // const bool Setup(const uint8_t csPin, const uint8_t udPin, const uint8_t incPin) {
+    const bool Setup(const uint8_t udPin, const uint8_t incPin) {
+        // PinCS = csPin;
         PinUD = udPin;
         PinINC = incPin;
 
-        if (PinCS == UINT8_MAX || PinUD == UINT8_MAX || PinINC == UINT8_MAX) {
+        // if (PinCS == UINT8_MAX || PinUD == UINT8_MAX || PinINC == UINT8_MAX) {
+        if (PinUD == UINT8_MAX || PinINC == UINT8_MAX) {
             return false;
         }
 
-        pinMode(PinCS, OUTPUT);
+        // pinMode(PinCS, OUTPUT);
         pinMode(PinUD, OUTPUT);
         pinMode(PinINC, OUTPUT);
 
-        digitalWrite(PinCS, LOW);
+        // digitalWrite(PinCS, LOW);
         digitalWrite(PinUD, LOW);
         digitalWrite(PinINC, HIGH);
 
@@ -80,7 +83,7 @@ class FastX9CXXX {
 
     // Resets the pot back to a known state.
     void Reset() {
-        digitalWrite(PinCS, LOW);
+        // digitalWrite(PinCS, LOW);
         digitalWrite(PinUD, LOW);
         digitalWrite(PinINC, HIGH);
 
@@ -90,7 +93,7 @@ class FastX9CXXX {
             digitalWrite(PinINC, HIGH);
             delayMicroseconds(NINC_LOW_PERIOD);
         }
-        digitalWrite(PinCS, HIGH);
+        // digitalWrite(PinCS, HIGH);
         digitalWrite(PinUD, HIGH);
 
         CurrentStep = 0;
@@ -118,7 +121,7 @@ class FastX9CXXX {
     // Shifts the pot's wiper one step down.
     void Down(const bool store = false) {
         digitalWrite(PinINC, HIGH);
-        digitalWrite(PinCS, LOW);
+        // digitalWrite(PinCS, LOW);
         digitalWrite(PinUD, LOW);
 
         delayMicroseconds(NINC_HIGH_TO_UND_CHANGE);
@@ -136,7 +139,7 @@ class FastX9CXXX {
     // Shifts the pot's wiper one step up.
     void Up(const bool store = false) {
         digitalWrite(PinINC, HIGH);
-        digitalWrite(PinCS, LOW);
+        // digitalWrite(PinCS, LOW);
         digitalWrite(PinUD, HIGH);
 
         delayMicroseconds(NINC_HIGH_TO_UND_CHANGE);
@@ -157,10 +160,10 @@ class FastX9CXXX {
 
     void Store() {
         digitalWrite(PinINC, HIGH);
-        digitalWrite(PinCS, HIGH);
+        // digitalWrite(PinCS, HIGH);
         delayMicroseconds(NCS_DESELECT_TIME_STORE);  // This is way too long to wait for storage, better check elapsed
                                                      // outside if needed.
-        digitalWrite(PinCS, LOW);
+        // digitalWrite(PinCS, LOW);
     }
 };
 
