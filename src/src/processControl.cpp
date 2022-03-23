@@ -3,10 +3,10 @@
 #include "outputs.h"
 
 #define NIMH_SHORTCUT_VOLTAGE 4.7f
-#define NIMH_SHORTCUT_ADC_VALUE ((NIMH_SHORTCUT_VOLTAGE / 5.0f) * 1024 * ACD_INPUTS_VOLTAGE_MULTIPLIER)
+#define NIMH_SHORTCUT_ADC_VALUE ((NIMH_SHORTCUT_VOLTAGE / 5.0f) * 1024 / ACD_INPUTS_VOLTAGE_MULTIPLIER)
 
-#define NIMH_FULL_CHARGED_CURRENT 0.05f  // 10 bit ADC gives 50mA sensivity
-#define NIMH_FULL_CHARGED_ADC_VALUE ((ACD_INPUTS_CURRENT_MULTIPLIER / (5.0f / 1024)) * NIMH_FULL_CHARGED_CURRENT)
+#define NIMH_FULL_CHARGED_CURRENT 8.0f  // 0.05f  // 10 bit ADC gives 50mA sensivity
+#define NIMH_FULL_CHARGED_ADC_VALUE ((NIMH_FULL_CHARGED_CURRENT * ACD_INPUTS_CURRENT_MULTIPLIER + 2.5) * (1024 / 5.0f))
 
 #define ON_OUTPUT_DELAY 200u
 #define ON_OUTPUT_READOUTS_DELAY 200u
@@ -36,12 +36,12 @@ void processHandleOutputs(uint8_t channel, OUTPUT_REQUEST outputOnRequest) {
     bool outputEnabled = false;
     if (outputOnRequest == OFF_OUTPUT_REQUEST) {
         channelReadoutsReady[channel] = false;
-        outputSetCurrentChannel(channel, (CHANNEL_CHARGING_CURRENT)controlData.channelChargingCurrent[channel]);
         outputState[channel] = OFF_OUTPUT_STATE;
     }
     switch (outputState[channel]) {
         case OFF_OUTPUT_STATE:
             if (outputOnRequest == ON_OUTPUT_REQUEST) {
+                outputSetCurrentChannel(channel, (CHANNEL_CHARGING_CURRENT)controlData.channelChargingCurrent[channel]);
                 channelOutputTimeout[channel] = ON_OUTPUT_DELAY;
                 outputState[channel] = WAIT_FOR_ON_OUTPUT_STATE;
             }
@@ -67,10 +67,10 @@ void processHandleOutputs(uint8_t channel, OUTPUT_REQUEST outputOnRequest) {
     }
     switch (controlData.channelChargingMode[channel]) {
         case LIPO_MODE:
-            outputSetNiMhChannel(channel, outputEnabled);
+            outputSetLiPoChannel(channel, outputEnabled);
             break;
         case NIMH_MODE:
-            outputSetLiPoChannel(channel, outputEnabled);
+            outputSetNiMhChannel(channel, outputEnabled);
             break;
         default:
             break;
@@ -90,11 +90,11 @@ void processControlHandler(void) {
                     break;
                 case NIMH_MODE:
                     if (channelReadoutsReady[i]) {
-                        if (controlData.cellVoltage[i] < NIMH_SHORTCUT_ADC_VALUE) {
+                        if (controlData.cellVoltage[i] < NIMH_SHORTCUT_VOLTAGE) {
                             controlData.channelChargingState[i] = ALERT_CHARGING_STATE;
                         }
-                        if (controlData.cellCurrent[i] < NIMH_FULL_CHARGED_ADC_VALUE) {
-                            controlData.cellCurrent[i] = FINISHED_CHARGING_STATE;
+                        if (controlData.cellCurrent[i] < NIMH_FULL_CHARGED_CURRENT) {
+                            controlData.channelChargingState[i] = FINISHED_CHARGING_STATE;
                         }
                     }
                     break;

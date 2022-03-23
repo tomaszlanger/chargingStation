@@ -4,6 +4,7 @@
 
 #define WELCOME_SCREEN_TIMEOUT 500u
 #define START_CHARGING_SCREEN_TIMEOUT 300u
+#define CELL_READOUTS_DISPLAY_UPDATE_TIMEOUT 100u
 
 typedef enum {
     POWER_ON_SCREEN = 0,
@@ -28,6 +29,7 @@ typedef struct {
     bool updateCellsReadouts;
     uint16_t welcomeScreenTimeout;
     uint16_t startChargingScreenTimeout;
+    uint16_t updateCellsReadoutsTimeout;
 } DISPLAY_DATA;
 
 extern DISPLAY_DATA displayData;

@@ -1,7 +1,7 @@
 #include "outputs.h"
 #include "processControl.h"
 
-#define ALERT_LED_BLINK_TIME_MS 50u
+#define ALERT_LED_BLINK_TIME_MS 200u
 
 #define ALERT_LED_1_OUTPUT 53
 #define ALERT_LED_2_OUTPUT 51
@@ -81,19 +81,33 @@ void outputsInit(void) {
     pinMode(CELL_5_LIPO_OUTPUT, OUTPUT);
     pinMode(CELL_6_LIPO_OUTPUT, OUTPUT);
 
+    pinMode(ALERT_LED_1_OUTPUT, OUTPUT);
+    pinMode(ALERT_LED_2_OUTPUT, OUTPUT);
+    pinMode(ALERT_LED_3_OUTPUT, OUTPUT);
+    pinMode(ALERT_LED_4_OUTPUT, OUTPUT);
+    pinMode(ALERT_LED_5_OUTPUT, OUTPUT);
+    pinMode(ALERT_LED_6_OUTPUT, OUTPUT);
+
+    digitalWrite(CELL_1_NIMH_OUTPUT, true);
+    digitalWrite(CELL_2_NIMH_OUTPUT, true);
+    digitalWrite(CELL_3_NIMH_OUTPUT, true);
+    digitalWrite(CELL_4_NIMH_OUTPUT, true);
+    digitalWrite(CELL_5_NIMH_OUTPUT, true);
+    digitalWrite(CELL_6_NIMH_OUTPUT, true);
+
+    digitalWrite(CELL_1_LIPO_OUTPUT, true);
+    digitalWrite(CELL_2_LIPO_OUTPUT, true);
+    digitalWrite(CELL_3_LIPO_OUTPUT, true);
+    digitalWrite(CELL_4_LIPO_OUTPUT, true);
+    digitalWrite(CELL_5_LIPO_OUTPUT, true);
+    digitalWrite(CELL_6_LIPO_OUTPUT, true);
+
     Potentiometer[0].Setup(X9_1_UD_PIN, X9_1_INC_PIN);
     Potentiometer[1].Setup(X9_2_UD_PIN, X9_2_INC_PIN);
     Potentiometer[2].Setup(X9_3_UD_PIN, X9_3_INC_PIN);
     Potentiometer[3].Setup(X9_4_UD_PIN, X9_4_INC_PIN);
     Potentiometer[4].Setup(X9_5_UD_PIN, X9_5_INC_PIN);
     Potentiometer[5].Setup(X9_6_UD_PIN, X9_6_INC_PIN);
-
-    // Potentiometer[0].Setup(X9_1_CS_PIN, X9_1_UD_PIN, X9_1_INC_PIN);
-    // Potentiometer[1].Setup(X9_2_CS_PIN, X9_2_UD_PIN, X9_2_INC_PIN);
-    // Potentiometer[2].Setup(X9_3_CS_PIN, X9_3_UD_PIN, X9_3_INC_PIN);
-    // Potentiometer[3].Setup(X9_4_CS_PIN, X9_4_UD_PIN, X9_4_INC_PIN);
-    // Potentiometer[4].Setup(X9_5_CS_PIN, X9_5_UD_PIN, X9_5_INC_PIN);
-    // Potentiometer[5].Setup(X9_6_CS_PIN, X9_6_UD_PIN, X9_6_INC_PIN);
 
     for (uint8_t i = 0; i < CHANNELS_QUANTITY; i++) {
         Potentiometer[i].Reset();
@@ -175,8 +189,15 @@ void outputSetLiPoChannel(uint8_t channel, bool state) {
 void outputSetChannelAlertLed(uint8_t channel, CHANNEL_CHARGING_STATE channelState) {
     uint32_t currentTime;
     static uint32_t lastTime = 0;
-    static uint8_t ledLogicState = 0;
+    static uint8_t ledBlinkState = 0;
+    uint8_t ledLogicState = 0;
     uint8_t ledPin = ALERT_LED_1_OUTPUT;
+
+    currentTime = millis();
+    if ((currentTime - lastTime) >= ALERT_LED_BLINK_TIME_MS) {
+        ledBlinkState = !ledBlinkState;
+        lastTime = currentTime;
+    }
 
     switch (channel) {
         case 0:
@@ -209,11 +230,9 @@ void outputSetChannelAlertLed(uint8_t channel, CHANNEL_CHARGING_STATE channelSta
             ledLogicState = 1;
             break;
         case ALERT_CHARGING_STATE:
-            currentTime = millis();
-            if ((currentTime - lastTime) >= ALERT_LED_BLINK_TIME_MS) {
-                ledLogicState = !ledLogicState;
-                lastTime = currentTime;
-            }
+            ledLogicState = ledBlinkState;
+            break;
+        default:
             break;
     }
     digitalWrite(ledPin, ledLogicState);

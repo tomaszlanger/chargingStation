@@ -81,6 +81,10 @@ void menuControlHandler(void) {
             }
             if (buttons.prev) {
                 displayData.menuIndex = CHANNEL_SETTINGS_SCREEN;
+                if ((controlData.channelChargingState[displayData.editedChannel] == FINISHED_CHARGING_STATE) ||
+                    (controlData.channelChargingState[displayData.editedChannel] == ALERT_CHARGING_STATE)) {
+                    controlData.channelChargingState[displayData.editedChannel] = OFF_CHARGING_STATE;
+                }
             }
             if (buttons.set) {
                 if (displayData.startChargingChoice) {
@@ -89,6 +93,10 @@ void menuControlHandler(void) {
                     controlData.channelChargingState[displayData.editedChannel] = ON_CHARGING_STATE;
                 } else {
                     displayData.menuIndex = CHANNEL_SETTINGS_SCREEN;
+                }
+                if ((controlData.channelChargingState[displayData.editedChannel] == FINISHED_CHARGING_STATE) ||
+                    (controlData.channelChargingState[displayData.editedChannel] == ALERT_CHARGING_STATE)) {
+                    controlData.channelChargingState[displayData.editedChannel] = OFF_CHARGING_STATE;
                 }
             }
             break;

@@ -27,6 +27,12 @@ void displayInit(void) {
 void displayMenuTimeouts(void) {
     if (displayData.welcomeScreenTimeout) displayData.welcomeScreenTimeout--;
     if (displayData.startChargingScreenTimeout > 0) displayData.startChargingScreenTimeout--;
+    if (displayData.updateCellsReadoutsTimeout > 0) {
+        displayData.updateCellsReadoutsTimeout--;
+    } else {
+        displayData.updateCellsReadoutsTimeout = CELL_READOUTS_DISPLAY_UPDATE_TIMEOUT;
+        displayData.updateCellsReadouts = true;
+    }
 }
 
 static bool displayCheckChannelsChanges(void) {
@@ -44,7 +50,7 @@ static void displayPrintActiveChannels(void) {
     for (uint8_t i = 0; i < CHANNELS_QUANTITY; i++) {
         switch (controlData.channelChargingState[i]) {
             case OFF_CHARGING_STATE:
-                lcd.print("^");
+                lcd.print("0");
                 break;
             case ON_CHARGING_STATE:
                 lcd.print("1");
@@ -98,7 +104,9 @@ static void displayPrintChargingState(void) {
         case ALERT_CHARGING_STATE:
             lcd.print("ALERT");
             break;
-
+        case FINISHED_CHARGING_STATE:
+            lcd.print("DONE ");
+            break;
         default:
             break;
     }
@@ -258,7 +266,6 @@ void displayMenuHandler(void) {
 
         case CHARGING_CONFIRMATION_SCREEN:
             if (menuChange) {
-                Serial.println((String) "displayData.startChargingChoice " + (displayData.startChargingChoice));
                 lcd.setCursor(0, 0);
                 lcd.print(String("Start Ch.") + displayData.editedChannel + String(" charging?"));
                 lcd.setCursor(0, 1);
