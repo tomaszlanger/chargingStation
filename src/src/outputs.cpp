@@ -139,22 +139,22 @@ void outputSetCurrentChannel(uint8_t channel, CHANNEL_CHARGING_CURRENT current) 
 void outputSetNiMhChannel(uint8_t channel, bool state) {
     switch (channel) {
         case 0:
-            digitalWrite(CELL_1_NIMH_OUTPUT, state);
+            digitalWrite(CELL_1_NIMH_OUTPUT, !state);
             break;
         case 1:
-            digitalWrite(CELL_2_NIMH_OUTPUT, state);
+            digitalWrite(CELL_2_NIMH_OUTPUT, !state);
             break;
         case 2:
-            digitalWrite(CELL_3_NIMH_OUTPUT, state);
+            digitalWrite(CELL_3_NIMH_OUTPUT, !state);
             break;
         case 3:
-            digitalWrite(CELL_4_NIMH_OUTPUT, state);
+            digitalWrite(CELL_4_NIMH_OUTPUT, !state);
             break;
         case 4:
-            digitalWrite(CELL_5_NIMH_OUTPUT, state);
+            digitalWrite(CELL_5_NIMH_OUTPUT, !state);
             break;
         case 5:
-            digitalWrite(CELL_6_NIMH_OUTPUT, state);
+            digitalWrite(CELL_6_NIMH_OUTPUT, !state);
             break;
         default:
             break;
@@ -164,22 +164,22 @@ void outputSetNiMhChannel(uint8_t channel, bool state) {
 void outputSetLiPoChannel(uint8_t channel, bool state) {
     switch (channel) {
         case 0:
-            digitalWrite(CELL_1_LIPO_OUTPUT, state);
+            digitalWrite(CELL_1_LIPO_OUTPUT, !state);
             break;
         case 1:
-            digitalWrite(CELL_2_LIPO_OUTPUT, state);
+            digitalWrite(CELL_2_LIPO_OUTPUT, !state);
             break;
         case 2:
-            digitalWrite(CELL_3_LIPO_OUTPUT, state);
+            digitalWrite(CELL_3_LIPO_OUTPUT, !state);
             break;
         case 3:
-            digitalWrite(CELL_4_LIPO_OUTPUT, state);
+            digitalWrite(CELL_4_LIPO_OUTPUT, !state);
             break;
         case 4:
-            digitalWrite(CELL_5_LIPO_OUTPUT, state);
+            digitalWrite(CELL_5_LIPO_OUTPUT, !state);
             break;
         case 5:
-            digitalWrite(CELL_6_LIPO_OUTPUT, state);
+            digitalWrite(CELL_6_LIPO_OUTPUT, !state);
             break;
         default:
             break;

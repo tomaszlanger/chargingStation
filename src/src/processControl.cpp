@@ -90,11 +90,11 @@ void processControlHandler(void) {
                     break;
                 case NIMH_MODE:
                     if (channelReadoutsReady[i]) {
-                        if (controlData.cellVoltage[i] < NIMH_SHORTCUT_VOLTAGE) {
-                            controlData.channelChargingState[i] = ALERT_CHARGING_STATE;
-                        }
                         if (controlData.cellCurrent[i] < NIMH_FULL_CHARGED_CURRENT) {
                             controlData.channelChargingState[i] = FINISHED_CHARGING_STATE;
+                        }
+                        if (controlData.cellVoltage[i] < NIMH_SHORTCUT_VOLTAGE) {
+                            controlData.channelChargingState[i] = ALERT_CHARGING_STATE;
                         }
                     }
                     break;
